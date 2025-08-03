@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main, feature/*, bugfix/*]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Poetry
+        run: |
+          pip install poetry
+      - name: Cache Poetry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry
+          key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            poetry-${{ runner.os }}-
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction --no-root
+      - name: Lint (black, isort, flake8, mypy, bandit)
+        run: |
+          poetry run black --check src
+          poetry run isort --check-only src
+          poetry run flake8 src
+          poetry run mypy src
+          poetry run bandit -r src
+      - name: Run tests
+        run: |
+          poetry run pytest --cov=src --cov-report=term-missing
+      - name: Build Docker image (optional)
+        run: |
+          docker build -t wanderwise .
