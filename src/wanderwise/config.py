@@ -18,8 +18,13 @@ logging.basicConfig(
 )
 
 # Explicitly load the .env file from the project root
-project_root = Path(__file__).parent.parent.parent.parent
+# src/wanderwise/config.py is 3 levels deep from project root
+project_root = Path(__file__).resolve().parent.parent.parent
+# Debug the actual project root path
+log = logging.getLogger(__name__)
+log.info(f"Project root path: {project_root.absolute()}")
 env_path = project_root / ".env"
+log.info(f"Looking for .env at: {env_path.absolute()}")
 load_dotenv(dotenv_path=env_path)
 
 # Debug the environment variables
