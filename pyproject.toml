@@ -49,7 +49,6 @@ flake8 = "^7.1.0"
 isort = "^5.13.2"
 mypy = "^1.10.0"
 bandit = "^1.7.9"
-types-jinja2 = "^2.11.9.20240506"
 
 # Configuration for our code quality tools
 [tool.black]
