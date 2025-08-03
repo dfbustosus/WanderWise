@@ -71,12 +71,8 @@ async def general_exception_handler(request: Request, exc: Exception) -> HTMLRes
     )
 
 
-# Root route - redirect to the itinerary router's index page
-@app.get("/", include_in_schema=False)
-async def root() -> HTMLResponse:
-    """Redirect the root URL to the itinerary page."""
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse(url="/")
+# Root route - we don't need this since itinerary_router already handles /
+# Removing to avoid redirect loop
 
 
 if __name__ == "__main__":
