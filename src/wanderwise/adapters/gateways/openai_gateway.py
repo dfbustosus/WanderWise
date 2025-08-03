@@ -80,13 +80,18 @@ class OpenAIGateway(LLMPort):
         try:
             # Get a fresh client instance for this request
             client = self._get_client()
+            # Update system message to include schema instructions
+            system_message = "You are a helpful travel planning assistant that only responds in JSON format. "
+            system_message += "Please format your response according to the following schema: "
+            system_message += json.dumps(schema)
+            
             response = await client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": "You are a helpful travel planning assistant that only responds in JSON format."},
+                    {"role": "system", "content": system_message},
                     {"role": "user", "content": prompt},
                 ],
-                response_format={"type": "json_object", "schema": schema},
+                response_format={"type": "json_object"},  # Remove schema parameter, only specify json_object type
                 temperature=0.7,
                 max_tokens=4096,
             )
