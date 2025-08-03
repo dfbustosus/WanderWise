@@ -1,0 +1,131 @@
+/* WanderWise Custom CSS - Complementing Tailwind CSS */
+
+/* Custom color variables */
+:root {
+    --primary-50: #f0f9ff;
+    --primary-100: #e0f2fe;
+    --primary-200: #bae6fd;
+    --primary-300: #7dd3fc;
+    --primary-400: #38bdf8;
+    --primary-500: #0ea5e9;
+    --primary-600: #0284c7;
+    --primary-700: #0369a1;
+    --primary-800: #075985;
+    --primary-900: #0c4a6e;
+    --primary-950: #082f49;
+}
+
+/* Smooth scrolling for the entire site */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Apply animations to specific elements */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+}
+
+/* Custom styling for form elements */
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
+/* Custom styling for buttons */
+.btn-hover-effect {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-hover-effect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Custom card styling */
+.card-hover {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Hero section background gradient */
+.hero-gradient {
+    background: linear-gradient(135deg, var(--primary-700) 0%, var(--primary-900) 100%);
+}
+
+/* Custom styling for the itinerary timeline */
+.timeline-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--primary-600);
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Print styles for itinerary */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-full-width {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    body {
+        font-size: 12pt;
+        color: #000;
+        background-color: #fff;
+    }
+    
+    .print-break-after {
+        page-break-after: always;
+    }
+    
+    .print-break-before {
+        page-break-before: always;
+    }
+    
+    a[href]:after {
+        content: " (" attr(href) ")";
+        font-size: 90%;
+    }
+}
+
+/* HTMX specific styles */
+.htmx-indicator {
+    opacity: 0;
+    transition: opacity 200ms ease-in;
+}
+
+.htmx-request .htmx-indicator {
+    opacity: 1;
+}
+
+.htmx-request.htmx-indicator {
+    opacity: 1;
+}

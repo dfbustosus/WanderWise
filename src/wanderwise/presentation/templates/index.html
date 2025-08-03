@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}WanderWise - Plan Your Perfect Trip{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Hero Section -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-primary-800 mb-4">Plan Your Perfect Trip with AI</h1>
+        <p class="text-xl text-gray-600">Tell us about your dream destination, and we'll create a personalized itinerary just for you.</p>
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-8">
+        <h2 class="text-2xl font-semibold text-primary-700 mb-6">Create Your Itinerary</h2>
+        
+        <form hx-post="/generate-itinerary" 
+              hx-target="#itinerary-container" 
+              hx-indicator="#form-indicator"
+              class="space-y-6">
+            
+            <!-- Destination -->
+            <div>
+                <label for="destination" class="block text-sm font-medium text-gray-700 mb-1">Where do you want to go?</label>
+                <input type="text" 
+                       id="destination" 
+                       name="destination" 
+                       required 
+                       placeholder="Paris, Tokyo, New York..." 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+            </div>
+            
+            <!-- Duration -->
+            <div>
+                <label for="duration_days" class="block text-sm font-medium text-gray-700 mb-1">How many days?</label>
+                <input type="number" 
+                       id="duration_days" 
+                       name="duration_days" 
+                       required 
+                       min="1" 
+                       max="14" 
+                       value="3" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+            </div>
+            
+            <!-- Travel Style -->
+            <div>
+                <label for="travel_style" class="block text-sm font-medium text-gray-700 mb-1">What's your travel style?</label>
+                <select id="travel_style" 
+                        name="travel_style" 
+                        required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <option value="Family-friendly">Family-friendly</option>
+                    <option value="Adventure">Adventure</option>
+                    <option value="Cultural">Cultural</option>
+                    <option value="Relaxation">Relaxation</option>
+                    <option value="Foodie">Foodie</option>
+                    <option value="Nightlife">Nightlife</option>
+                </select>
+            </div>
+            
+            <!-- Budget -->
+            <div>
+                <label for="budget" class="block text-sm font-medium text-gray-700 mb-1">What's your budget?</label>
+                <select id="budget" 
+                        name="budget" 
+                        required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <option value="Budget-friendly">Budget-friendly</option>
+                    <option value="Mid-range">Mid-range</option>
+                    <option value="Luxury">Luxury</option>
+                </select>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="pt-4">
+                <button type="submit" 
+                        class="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    Generate My Itinerary
+                </button>
+            </div>
+        </form>
+        
+        <!-- Loading Indicator -->
+        <div id="form-indicator" class="htmx-indicator flex justify-center items-center py-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+            <span class="ml-3 text-lg text-primary-600">Creating your perfect itinerary...</span>
+        </div>
+    </div>
+    
+    <!-- Itinerary Results Container -->
+    <div id="itinerary-container" class="min-h-[200px]"></div>
+    
+    <!-- Features Section -->
+    <div class="mt-16 grid md:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="text-primary-600 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">AI-Powered Recommendations</h3>
+            <p class="text-gray-600">Our advanced AI analyzes thousands of travel data points to create personalized itineraries just for you.</p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="text-primary-600 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">Save Time Planning</h3>
+            <p class="text-gray-600">Get a complete day-by-day itinerary in seconds instead of spending hours on research.</p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="text-primary-600 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">Discover Hidden Gems</h3>
+            <p class="text-gray-600">Explore unique experiences and local favorites that most tourists miss.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
