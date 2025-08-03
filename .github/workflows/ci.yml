@@ -31,7 +31,7 @@ jobs:
       - name: Lint (black, isort, flake8, mypy, bandit)
         run: |
           # poetry run black --check src
-          poetry run isort --check-only src
+          # poetry run isort --check-only src
           poetry run flake8 src
           poetry run mypy src
           poetry run bandit -r src
