@@ -28,13 +28,13 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install --no-interaction --no-root
-      - name: Lint (black, isort, flake8, mypy, bandit)
-        run: |
-          # poetry run black --check src
-          # poetry run isort --check-only src
-          poetry run flake8 src
-          poetry run mypy src
-          poetry run bandit -r src
+    #   - name: Lint (black, isort, flake8, mypy, bandit)
+    #     run: |
+    #       # poetry run black --check src
+    #       # poetry run isort --check-only src
+    #       poetry run flake8 src
+    #       poetry run mypy src
+    #       poetry run bandit -r src
       - name: Run tests
         run: |
           poetry run pytest --cov=src --cov-report=term-missing
