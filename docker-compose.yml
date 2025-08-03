@@ -1,0 +1,30 @@
+version: '3.9'
+services:
+  app:
+    build: .
+    container_name: wanderwise
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src:ro
+    restart: unless-stopped
+    command: ["python", "-m", "uvicorn", "wanderwise.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    # Uncomment below to add a database or other services in the future
+    # depends_on:
+    #   - db
+
+  # db:
+  #   image: postgres:15
+  #   environment:
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: pass
+  #     POSTGRES_DB: wanderwise
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - db_data:/var/lib/postgresql/data
+
+# volumes:
+#   db_data:
