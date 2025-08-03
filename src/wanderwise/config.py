@@ -1,9 +1,12 @@
 # src/wanderwise/config.py
 
 import logging
+import os
 from functools import lru_cache
+from pathlib import Path
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from dotenv import load_dotenv
 
 # Configure logging
 # This basic configuration sets up logging to the console.
@@ -13,6 +16,18 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
+
+# Explicitly load the .env file from the project root
+project_root = Path(__file__).parent.parent.parent.parent
+env_path = project_root / ".env"
+load_dotenv(dotenv_path=env_path)
+
+# Debug the environment variables
+log = logging.getLogger(__name__)
+log.info(f"Loaded .env from: {env_path}")
+log.info(f"OPENAI_API_KEY exists: {bool(os.environ.get('OPENAI_API_KEY'))}")
+if os.environ.get('OPENAI_API_KEY'):
+    log.info(f"OPENAI_API_KEY length: {len(os.environ.get('OPENAI_API_KEY'))}")
 
 
 class Settings(BaseSettings):
@@ -35,9 +50,10 @@ class Settings(BaseSettings):
 
     # Model configuration for the Pydantic BaseSettings class.
     model_config = SettingsConfigDict(
-        env_file=".env",          # Load settings from a .env file
+        env_file=str(env_path),    # Use the absolute path to the .env file
         env_file_encoding="utf-8",
-        case_sensitive=False,     # Environment variable names are case-insensitive
+        case_sensitive=False,      # Environment variable names are case-insensitive
+        extra="ignore",            # Ignore extra fields
     )
 
 
