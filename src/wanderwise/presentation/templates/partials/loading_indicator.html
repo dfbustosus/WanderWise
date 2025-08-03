@@ -1,0 +1,56 @@
+<!-- partials/loading_indicator.html -->
+<!-- This template is shown during HTMX requests -->
+
+<div class="flex flex-col items-center justify-center p-8">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary-600 mb-4"></div>
+    <h3 class="text-xl font-semibold text-gray-700">Creating Your Perfect Itinerary</h3>
+    <p class="text-gray-500 mt-2 text-center">Our AI is crafting a personalized travel plan just for you. This may take a few moments...</p>
+    
+    <div class="mt-6 max-w-md">
+        <div class="relative pt-1">
+            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-primary-200">
+                <div class="htmx-indicator-progress shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary-500 w-full"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Animate the progress bar during loading
+    document.addEventListener('htmx:afterOnLoad', function() {
+        const progressBar = document.querySelector('.htmx-indicator-progress');
+        if (progressBar) {
+            progressBar.style.width = '0%';
+        }
+    });
+    
+    document.addEventListener('htmx:beforeRequest', function() {
+        const progressBar = document.querySelector('.htmx-indicator-progress');
+        if (progressBar) {
+            let width = 0;
+            const interval = setInterval(function() {
+                if (width >= 90) {
+                    clearInterval(interval);
+                } else {
+                    width += Math.random() * 10;
+                    if (width > 90) width = 90;
+                    progressBar.style.width = width + '%';
+                }
+            }, 500);
+            
+            // Store the interval ID to clear it later
+            window.progressInterval = interval;
+        }
+    });
+    
+    document.addEventListener('htmx:afterRequest', function() {
+        if (window.progressInterval) {
+            clearInterval(window.progressInterval);
+        }
+        
+        const progressBar = document.querySelector('.htmx-indicator-progress');
+        if (progressBar) {
+            progressBar.style.width = '100%';
+        }
+    });
+</script>
