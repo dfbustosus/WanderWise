@@ -9,7 +9,7 @@ from fastapi.templating import Jinja2Templates
 
 from ...application.use_cases.generate_itinerary import GenerateItineraryUseCase
 from ...domain.models.itinerary import ItineraryRequest
-from ..dependencies import get_generate_itinerary_use_case
+from ..dependencies import get_generate_itinerary_use_case, get_llm_port
 
 # --- Router Setup ---
 log = logging.getLogger(__name__)
