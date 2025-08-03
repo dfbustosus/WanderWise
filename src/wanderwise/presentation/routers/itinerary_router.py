@@ -1,0 +1,84 @@
+# src/wanderwise/presentation/routers/itinerary_router.py
+
+import logging
+from pathlib import Path
+
+from fastapi import APIRouter, Request, Depends, Form, HTTPException
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
+from ...application.use_cases.generate_itinerary import GenerateItineraryUseCase
+from ...domain.models.itinerary import ItineraryRequest
+from ..dependencies import get_generate_itinerary_use_case
+
+# --- Router Setup ---
+log = logging.getLogger(__name__)
+router = APIRouter()
+
+# Setup for templates
+BASE_DIR = Path(__file__).resolve().parent.parent
+templates = Jinja2Templates(directory=BASE_DIR / "templates")
+
+
+# --- HTML Serving Endpoints ---
+
+@router.get("/", response_class=HTMLResponse)
+async def get_index_page(request: Request):
+    """
+    Serves the main index page of the application.
+    This page contains the form for users to input their travel preferences.
+    """
+    log.info("Serving index page.")
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+@router.post("/generate-itinerary", response_class=HTMLResponse)
+async def generate_itinerary(
+    request: Request,
+    destination: str = Form(...),
+    duration_days: int = Form(...),
+    travel_style: str = Form(...),
+    budget: str = Form(...),
+    use_case: GenerateItineraryUseCase = Depends(get_generate_itinerary_use_case),
+):
+    """
+    Handles the form submission to generate a new itinerary.
+
+    This endpoint is called by HTMX from the frontend. It receives the form data,
+    invokes the appropriate use case, and returns an HTML fragment containing
+    either the generated itinerary or an error message.
+    """
+    log.info(f"Received itinerary request for destination: {destination}")
+    try:
+        itinerary_request = ItineraryRequest(
+            destination=destination,
+            duration_days=duration_days,
+            travel_style=travel_style,
+            budget=budget,
+        )
+
+        itinerary = await use_case.execute(itinerary_request)
+
+        if not itinerary:
+            log.error("Itinerary generation failed. Use case returned None.")
+            # Return a user-friendly error message as an HTML fragment
+            return templates.TemplateResponse(
+                "partials/error_display.html",
+                {"request": request, "error_message": "Failed to generate itinerary. The model may be overloaded. Please try again later."},
+            )
+
+        log.info("Successfully generated itinerary. Rendering partial template.")
+        # Return the itinerary rendered in the partial template
+        return templates.TemplateResponse(
+            "partials/itinerary_display.html",
+            {"request": request, "itinerary": itinerary},
+        )
+    except Exception as e:
+        log.critical(f"An unexpected server error occurred: {e}", exc_info=True)
+        # In case of an unexpected error, return a generic error message
+        # to avoid exposing internal details.
+        return templates.TemplateResponse(
+            "partials/error_display.html",
+            {"request": request, "error_message": "An unexpected server error occurred. Please contact support."},
+        )
+
