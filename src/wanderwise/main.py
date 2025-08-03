@@ -80,3 +80,6 @@ if __name__ == "__main__":
     import uvicorn
     log.info(f"Starting {settings.APP_NAME} in {'debug' if settings.DEBUG else 'production'} mode")
     uvicorn.run("wanderwise.main:app", host="0.0.0.0", port=8000, reload=settings.DEBUG)
+
+# Run the application using Uvicorn when executed directly
+# cd src && python -m wanderwise.main
