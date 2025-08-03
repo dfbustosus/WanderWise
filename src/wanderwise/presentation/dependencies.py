@@ -12,7 +12,7 @@ from ..domain.ports.llm_port import LLMPort
 # and return the necessary services and use cases.
 
 @lru_cache(maxsize=1)
-def get_llm_port(settings: Settings = get_settings()) -> LLMPort:
+def get_llm_port(settings: Settings = get_settings()):
     """
     Dependency provider for the LLM port.
 
@@ -30,8 +30,8 @@ def get_llm_port(settings: Settings = get_settings()) -> LLMPort:
 
 
 def get_generate_itinerary_use_case(
-    llm_port: LLMPort = get_llm_port()
-) -> GenerateItineraryUseCase:
+    llm_port = get_llm_port()
+):
     """
     Dependency provider for the GenerateItineraryUseCase.
 
