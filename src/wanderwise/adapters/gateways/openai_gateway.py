@@ -30,9 +30,17 @@ class OpenAIGateway(LLMPort):
         Args:
             settings: The application settings object containing the API key.
         """
-        self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY.get_secret_value())
+        # Store the API key instead of initializing the client
+        self.api_key = settings.OPENAI_API_KEY.get_secret_value()
         self.model = "gpt-4o" # Using a powerful model capable of following JSON instructions
         log.info(f"OpenAIGateway initialized with model: {self.model}")
+        
+    def _get_client(self) -> AsyncOpenAI:
+        """
+        Creates a new client instance when needed.
+        This prevents issues with deepcopy during FastAPI dependency injection.
+        """
+        return AsyncOpenAI(api_key=self.api_key)
 
     def get_response_schema(self) -> Dict[str, Any]:
         """Returns the JSON schema for the Itinerary model."""
@@ -70,7 +78,9 @@ class OpenAIGateway(LLMPort):
 
         log.info(f"Sending request to OpenAI for destination: {request.destination}")
         try:
-            response = await self.client.chat.completions.create(
+            # Get a fresh client instance for this request
+            client = self._get_client()
+            response = await client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": "You are a helpful travel planning assistant that only responds in JSON format."},
