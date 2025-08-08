@@ -4,6 +4,10 @@ import logging
 from pathlib import Path
 
 from fastapi import FastAPI, Request
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -25,7 +29,17 @@ app = FastAPI(
     description="AI-Powered Travel Itinerary Planner",
     version="0.1.0",
     debug=settings.DEBUG,
+    openapi_url="/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
+
+# Rate limiting configuration
+limiter = Limiter(key_func=get_remote_address, default_limits=["100/minute"])
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+# Register SlowAPI middleware
+app.add_middleware(SlowAPIMiddleware)
 
 # Configure CORS
 app.add_middleware(
@@ -42,6 +56,11 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Include routers
 app.include_router(itinerary_router.router)
+
+# Apply rate limiting to all routes (default limits already set)
+# No per‑route decorator needed unless you want custom limits.
+# The limiter will automatically enforce the default limit.
+
 
 # Setup templates
 templates_dir = Path(__file__).parent / "presentation" / "templates"
