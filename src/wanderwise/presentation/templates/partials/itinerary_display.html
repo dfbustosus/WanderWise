@@ -17,6 +17,11 @@
         {% endif %}
     </div>
     
+    <!-- Interactive Map Section -->
+    <div class="h-96 w-full bg-gray-100">
+        {% include 'partials/map_component.html' %}
+    </div>
+    
     <!-- Daily Plans -->
     <div class="p-6">
         {% for day in itinerary.daily_plans %}
