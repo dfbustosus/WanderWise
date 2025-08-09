@@ -45,7 +45,7 @@ async def get_index_page(request: Request):
     })
 
 
-@router.post("/generate-itinerary", response_class=HTMLResponse)
+@router.post("/generate-itinerary", response_class=HTMLResponse, response_model=None)
 async def generate_itinerary(
     request: Request,
     destination: str = Form(...),
