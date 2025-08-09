@@ -48,7 +48,7 @@ def get_storage_port() -> StoragePort:
 
 
 def get_itinerary_service(
-    llm_port: LLMPort = get_llm_port(),
+    llm_port: LLMPort = Depends(get_llm_port),
     storage_port: StoragePort = Depends(get_storage_port)
 ) -> ItineraryService:
     """
@@ -65,8 +65,8 @@ def get_itinerary_service(
 
 
 def get_generate_itinerary_use_case(
-    llm_port = get_llm_port()
-):
+    llm_port: LLMPort = Depends(get_llm_port)
+) -> GenerateItineraryUseCase:
     """
     Dependency provider for the GenerateItineraryUseCase.
 
