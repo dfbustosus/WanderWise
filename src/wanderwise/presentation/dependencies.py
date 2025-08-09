@@ -3,6 +3,8 @@
 from functools import lru_cache
 from typing import Optional
 
+from fastapi import Depends
+
 from ..config import get_settings, Settings
 from ..adapters.gateways.openai_gateway import OpenAIGateway
 from ..adapters.storage.in_memory_storage import InMemoryStorage
