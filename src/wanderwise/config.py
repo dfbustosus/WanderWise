@@ -43,10 +43,31 @@ class Settings(BaseSettings):
     It uses pydantic-settings to automatically load values from environment variables.
     This provides a robust, type-safe way to manage application configuration.
     """
+    model_config = SettingsConfigDict(arbitrary_types_allowed=True)
 
     # Application metadata
     APP_NAME: str = "WanderWise"
     DEBUG: bool = Field(default=False, description="Enable debug mode.")
+    
+    def __hash__(self):
+        """Make Settings hashable by returning a hash of its JSON representation."""
+        return hash((
+            self.APP_NAME,
+            self.DEBUG,
+            # Add other fields that should contribute to the hash
+        ))
+        
+    def __eq__(self, other):
+        """
+        Compare Settings instances based on their attributes.
+        This is required when __hash__ is defined.
+        """
+        if not isinstance(other, Settings):
+            return False
+        return all(
+            getattr(self, field) == getattr(other, field)
+            for field in self.model_dump()
+        )
     
     # Maps configuration
     MAPBOX_ACCESS_TOKEN: str = Field(
