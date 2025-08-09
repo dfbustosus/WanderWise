@@ -9,6 +9,7 @@ from fastapi.templating import Jinja2Templates
 
 from ...application.use_cases.generate_itinerary import GenerateItineraryUseCase
 from ...domain.models.itinerary import ItineraryRequest
+from ...config import get_settings
 from ..dependencies import get_generate_itinerary_use_case, get_llm_port
 
 # --- Router Setup ---
@@ -29,7 +30,13 @@ async def get_index_page(request: Request):
     This page contains the form for users to input their travel preferences.
     """
     log.info("Serving index page.")
-    return templates.TemplateResponse("index.html", {"request": request})
+    settings = get_settings()
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "config": {
+            "MAPBOX_ACCESS_TOKEN": settings.MAPBOX_ACCESS_TOKEN
+        }
+    })
 
 
 @router.post("/generate-itinerary", response_class=HTMLResponse)
@@ -68,10 +75,17 @@ async def generate_itinerary(
             )
 
         log.info("Successfully generated itinerary. Rendering partial template.")
+        settings = get_settings()
         # Return the itinerary rendered in the partial template
         return templates.TemplateResponse(
             "partials/itinerary_display.html",
-            {"request": request, "itinerary": itinerary},
+            {
+                "request": request, 
+                "itinerary": itinerary,
+                "config": {
+                    "MAPBOX_ACCESS_TOKEN": settings.MAPBOX_ACCESS_TOKEN
+                }
+            },
         )
     except Exception as e:
         log.critical(f"An unexpected server error occurred: {e}", exc_info=True)
