@@ -80,14 +80,7 @@ async def generate_itinerary(
                 {"request": request, "error": "Failed to generate itinerary. Please try again."},
                 status_code=500,
             )
-    except Exception as e:
-        log.error(f"Error generating itinerary: {e}", exc_info=True)
-        return templates.TemplateResponse(
-            "partials/error.html",
-            {"request": request, "error": "An unexpected error occurred. Please try again."},
-            status_code=500,
-        )
-
+            
         log.info("Successfully generated itinerary. Rendering partial template.")
         settings = get_settings()
         # Save the itinerary to our storage
@@ -105,6 +98,7 @@ async def generate_itinerary(
                 }
             },
         )
+        
     except Exception as e:
         log.critical(f"An unexpected server error occurred: {e}", exc_info=True)
         # In case of an unexpected error, return a generic error message
