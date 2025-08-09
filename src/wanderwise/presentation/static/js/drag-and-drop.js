@@ -152,19 +152,26 @@ function handleDragEnd() {
  * @param {HTMLElement} listElement - The activity list element
  */
 function updateActivityOrder(listElement) {
-    const dayId = listElement.closest('.day-plan').dataset.dayId;
+    const dayPlanElement = listElement.closest('.day-plan');
+    const dayNumber = dayPlanElement ? parseInt(dayPlanElement.dataset.dayId?.replace('day-', '')) : 1;
+    const itineraryId = document.documentElement.dataset.itineraryId || 'current';
+    
     const activityItems = listElement.querySelectorAll('.activity-item');
     const order = Array.from(activityItems).map(item => item.dataset.activityId);
+    
+    if (order.length === 0) return;
     
     // Send the new order to the server
     fetch('/api/itinerary/reorder-activities', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken') // If using CSRF protection
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken') || ''
         },
         body: JSON.stringify({
-            day_id: dayId,
+            itinerary_id: itineraryId,
+            day_number: dayNumber,
             activity_order: order
         })
     })
