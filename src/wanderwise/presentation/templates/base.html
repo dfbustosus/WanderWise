@@ -1,8 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-itinerary-id="{{ config.ITINERARY_ID if config and config.ITINERARY_ID else '' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0ea5e9">
+    <meta name="description" content="AI-powered travel itinerary planner">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WanderWise">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
     <title>{% block title %}WanderWise - AI Travel Planner{% endblock %}</title>
     
     <!-- Tailwind CSS CDN - In production, you would use a bundled version -->
@@ -13,12 +20,87 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/map.css">
     
     <!-- Favicon -->
     <link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
     
     <!-- Additional head content -->
     {% block head %}{% endblock %}
+    
+    <!-- Mapbox GL JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+    
+    <!-- Custom Map JavaScript -->
+    <script src="/static/js/map.js"></script>
+    
+    <!-- Drag and Drop Functionality -->
+    <script src="/static/js/drag-and-drop.js"></script>
+    
+    <!-- PWA Installation Handler -->
+    <script>
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/js/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+        
+        // Handle PWA installation prompt
+        let deferredPrompt;
+        const installButton = document.createElement('button');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            
+            // Show the install button (you can style this as needed)
+            installButton.textContent = 'Install WanderWise';
+            installButton.className = 'fixed bottom-4 right-4 bg-primary-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-primary-700 transition-colors';
+            installButton.onclick = showInstallPrompt;
+            document.body.appendChild(installButton);
+        });
+        
+        function showInstallPrompt() {
+            if (!deferredPrompt) return;
+            
+            // Show the install prompt
+            deferredPrompt.prompt();
+            
+            // Wait for the user to respond to the prompt
+            deferredPrompt.userChoice.then(choiceResult => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                // Clear the saved prompt since it can't be used again
+                deferredPrompt = null;
+                // Hide the install button
+                if (installButton.parentNode) {
+                    installButton.parentNode.removeChild(installButton);
+                }
+            });
+        }
+        
+        // Check if the app is running as a PWA
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('WanderWise was installed.');
+            // Hide the install button if it's visible
+            if (installButton.parentNode) {
+                installButton.parentNode.removeChild(installButton);
+            }
+        });
+    </script>
     
     <!-- Tailwind configuration -->
     <script>
