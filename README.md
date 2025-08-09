@@ -11,6 +11,8 @@ WanderWise is a modern web application that generates personalized travel itiner
 - **AI-Generated Itineraries**: Personalized travel plans for any destination
 - **Modern Tech Stack**: FastAPI, Jinja2, HTMX, and Tailwind CSS
 - **Clean Architecture**: Modular, maintainable codebase
+- **Progressive Web App (PWA)**: Installable on mobile/desktop with offline support
+- **Interactive UI**: Drag-and-drop itinerary customization
 - **Docker Support**: Easy deployment and containerization
 
 ## Quick Start
@@ -41,6 +43,16 @@ python -m wanderwise.main
 ```
 
 Visit http://localhost:8000 in your browser.
+
+### PWA Installation
+
+WanderWise is a Progressive Web App (PWA) that can be installed on your device:
+
+1. **Chrome/Edge/Opera**: Click the install button in the address bar or use the browser menu
+2. **Safari (iOS)**: Tap the Share button and select "Add to Home Screen"
+3. **Firefox**: Use the browser menu to "Install" the app
+
+Once installed, WanderWise works offline and behaves like a native app.
 
 ### Docker
 
