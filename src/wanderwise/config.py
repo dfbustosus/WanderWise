@@ -47,6 +47,12 @@ class Settings(BaseSettings):
     # Application metadata
     APP_NAME: str = "WanderWise"
     DEBUG: bool = Field(default=False, description="Enable debug mode.")
+    
+    # Maps configuration
+    MAPBOX_ACCESS_TOKEN: str = Field(
+        default="",
+        description="Mapbox access token for interactive maps. Get one at https://account.mapbox.com/access-tokens/"
+    )
 
     # OpenAI API configuration
     # The API key is loaded from the OPENAI_API_KEY environment variable.
