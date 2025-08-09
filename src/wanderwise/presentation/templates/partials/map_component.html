@@ -1,0 +1,141 @@
+<!-- Map component for itinerary visualization -->
+<div class="relative w-full h-full">
+    {% if not config.MAPBOX_ACCESS_TOKEN %}
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-yellow-700">
+                    Map functionality is disabled. Please set the <code class="bg-yellow-100 px-1 rounded">MAPBOX_ACCESS_TOKEN</code> environment variable to enable interactive maps.
+                </p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Map container -->
+    <div id="itinerary-map" 
+         class="map-container"
+         data-mapbox-token="{{ config.MAPBOX_ACCESS_TOKEN }}"
+         data-destination="{{ destination | tojson | safe }}"
+         data-activities="{{ activities | tojson | safe }}">
+        <div class="map-loading">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Map controls -->
+    <div class="map-controls">
+        <button id="zoom-to-fit" class="map-control-button" title="Zoom to fit all markers">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+        </button>
+        <button id="toggle-satellite" class="map-control-button" title="Toggle satellite view">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- Map initialization script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the map when the DOM is ready
+        const mapElement = document.getElementById('itinerary-map');
+        if (!mapElement) return;
+
+        // Get configuration from data attributes
+        const mapboxToken = mapElement.dataset.mapboxToken;
+        const destination = JSON.parse(mapElement.dataset.destination || '{}');
+        const activities = JSON.parse(mapElement.dataset.activities || '[]');
+
+        // Initialize the map with the destination as center
+        const map = new ItineraryMap('itinerary-map', {
+            mapboxToken: mapboxToken,
+            center: destination.coordinates || [0, 0],
+            zoom: destination.coordinates ? 12 : 2
+        });
+
+        // Add markers for activities when the map is loaded
+        mapElement.addEventListener('map:loaded', function() {
+            // Add destination marker
+            if (destination.coordinates) {
+                map.addMarker(destination.coordinates, {
+                    color: '#3b82f6',
+                    title: destination.name || 'Destination'
+                });
+            }
+
+            // Add activity markers
+            const activityCoordinates = [];
+            activities.forEach((activity, index) => {
+                if (activity.coordinates) {
+                    const marker = map.addMarker(activity.coordinates, {
+                        color: '#10b981',
+                        title: activity.name || `Activity ${index + 1}`,
+                        draggable: true
+                    });
+
+                    // Store the activity index with the marker
+                    if (marker) {
+                        marker.getElement().dataset.activityIndex = index;
+                        activityCoordinates.push(activity.coordinates);
+                    }
+                }
+            });
+
+            // Fit bounds to show all markers
+            if (activityCoordinates.length > 0) {
+                map.fitBounds(activityCoordinates);
+            } else if (destination.coordinates) {
+                map.fitBounds([destination.coordinates]);
+            }
+
+            // Add event listeners for map controls
+            document.getElementById('zoom-to-fit')?.addEventListener('click', () => {
+                const allCoordinates = [];
+                if (destination.coordinates) allCoordinates.push(destination.coordinates);
+                activities.forEach(activity => {
+                    if (activity.coordinates) allCoordinates.push(activity.coordinates);
+                });
+                if (allCoordinates.length > 0) {
+                    map.fitBounds(allCoordinates);
+                }
+            });
+
+            // Toggle between map and satellite view
+            let isSatelliteView = false;
+            document.getElementById('toggle-satellite')?.addEventListener('click', () => {
+                isSatelliteView = !isSatelliteView;
+                map.map.setStyle(
+                    isSatelliteView 
+                        ? 'mapbox://styles/mapbox/satellite-streets-v12'
+                        : 'mapbox://styles/mapbox/streets-v12'
+                );
+                document.getElementById('toggle-satellite').classList.toggle('active', isSatelliteView);
+            });
+        });
+
+        // Handle marker drag events to update activity order
+        mapElement.addEventListener('marker:dragend', function(e) {
+            const marker = e.detail.marker;
+            const activityIndex = marker.getElement().dataset.activityIndex;
+            if (activityIndex !== undefined) {
+                // Emit event to update activity order in the parent component
+                const event = new CustomEvent('activity:reordered', {
+                    detail: {
+                        fromIndex: parseInt(activityIndex),
+                        toPosition: marker.getLngLat()
+                    }
+                });
+                window.dispatchEvent(event);
+            }
+        });
+    });
+</script>
