@@ -51,6 +51,7 @@ class Itinerary(BaseModel):
     Represents the complete travel itinerary for a destination.
     This is the main aggregate root of our domain model.
     """
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="A unique identifier for the itinerary.")
     destination: str = Field(..., description="The city or region for the trip.")
     trip_title: str = Field(..., description="A catchy and descriptive title for the itinerary.")
     total_estimated_cost_usd: Optional[float] = Field(None, description="An optional overall estimated cost for the trip in USD.")
